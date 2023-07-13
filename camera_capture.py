@@ -4,14 +4,14 @@ from tkinter.simpledialog import askinteger
 import atexit
 import json
 import os
+import time
 
 class Application(tk.Frame):
     def __init__(self, root):
         super().__init__(root)
         self.root = root
         
-        self.name_dict = self.read_json()
-        print(self.name_dict)
+        self.load_json()
         
         self.cap = cv2.VideoCapture(0)
         self.qcd = cv2.QRCodeDetector()
@@ -32,8 +32,8 @@ class Application(tk.Frame):
         self.class_spinbox = tk.Spinbox(textvariable=self.class_val, values=['A', 'B', 'C', 'D', 'E'],increment=1, wrap=True, width=2, font=self.spinbox_font)
         self.number_spinbox = tk.Spinbox(textvariable=self.number_val, from_=1, to=50, increment=1, wrap=True, width=2, font=self.spinbox_font)
         
-        self.check_button = tk.Button(text='確認', font=self.spinbox_font)
-        self.passage_button = tk.Button(text='通過', font=self.spinbox_font)
+        self.check_button = tk.Button(text='確認', font=self.spinbox_font, command=self.check_name)
+        self.passage_button = tk.Button(text='通過', font=self.spinbox_font, command=self.write_name)
         
         self.label.grid(column=0, row=0, columnspan=3)
         self.year_spinbox.grid(column=0, row=1, sticky=tk.EW)
@@ -46,21 +46,15 @@ class Application(tk.Frame):
         for i in range(3):
             self.root.grid_columnconfigure(i, weight=1)
     
-    def read_json(self):
-        c = True
-        target = '0'
-        for i in os.listdir():
-            if i[-4:] == 'json':
-                c = False
-                target = i[0]
-                break
+    def load_json(self):
+        c, self.target = self.find_json()
         if c:
-            target = str(askinteger('速歩遠足', 'ここは何関門ですか？', initialvalue=1))
-            with open(target + '.json', 'w') as f:
-                json.dump({'barrier':target}, f)
+            self.target = str(askinteger('速歩遠足', 'ここは何関門ですか？', initialvalue=1))
+            with open(self.target + '.json', 'w') as f:
+                json.dump({'barrier':self.target}, f)
         
-        with open(target + '.json', 'r') as f:
-            return json.load(f)
+        with open(self.target + '.json', 'r') as f:
+            self.name_dict = json.load(f)
     
     def exit(self):
         self.cap.release()
@@ -70,15 +64,52 @@ class Application(tk.Frame):
         _, frame = self.cap.read()
         r, *_,= self.qcd.detectAndDecode(frame)
         if r:
-            self.label['text'] = r
+            self.write_time(r)
         frame = cv2.resize(frame, (1000, 500))
         cv2.imshow('test', frame)
-        self.after(100, self.camera)
+        self.after(50, self.camera)
+    
+    def write_time(self, ip):
+        if ip == None:
+            return
+        t = time.time()
+        if ip not in self.name_dict:
+            self.label['text'] = f'{len(self.name_dict)}位'
+            self.name_dict[ip] = (t, len(self.name_dict))
+            self.write_json()
+        
+    def write_json(self):
+        with open(self.target + '.json', 'w') as f:
+            json.dump(self.name_dict, f)
+    
+    def find_json(self):
+        c = True
+        target = '0'
+        for i in os.listdir():
+            if i[-4:] == 'json':
+                c = False
+                target = i[0]
+                break
+        return c, target
+
+    def check_name(self):
+        ip = str(self.year_val.get()) + self.class_val.get() + str(self.number_val.get()).zfill(2)
+        if ip in self.name_dict:
+            self.label['text'] = '通過しています'
+        else:
+            self.label['text'] = '通過していません'
+    
+    def write_name(self):
+        ip = str(self.year_val.get()) + self.class_val.get() + str(self.number_val.get()).zfill(2)
+        self.write_time(ip)
+            
+        
+        
         
 
 if __name__ == '__main__':
     root = tk.Tk()
-    root.geometry('200x95')
+    root.geometry('400x95')
     root.title('速歩遠足  受付機')
     root.resizable(width=True, height=False)
     application = Application(root)
