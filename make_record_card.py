@@ -1,6 +1,7 @@
 from read_name_list import ReadNameList
 from PIL import Image, ImageFont, ImageDraw
 import qrcode
+import os
 
 class MakeRecord:
     def __init__(self):
@@ -8,11 +9,12 @@ class MakeRecord:
         self.make()
     
     def make(self):
+        if not os.path.isdir('./records/'):
+            os.mkdir('./records')
         l = len(self.name) // 8
         if len(self.name) % 8 != 0:
             l += 1
         for i in range(l):
-            print(self.name[i * 8:i * 8 + 8])
             self.write(self.name[i * 8:i * 8 + 8], i)
     
     def write(self, li, ind):

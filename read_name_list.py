@@ -13,10 +13,11 @@ class ReadNameList:
         if file:
             wb = openpyxl.load_workbook(file.name)
             for i in wb.sheetnames:
-                print(i)
                 di = defaultdict(int)
                 year = int(i[1])
                 for j in wb[i].values:
+                    if j[0] == None or j[1] == None:
+                        continue
                     di[j[0]] += 1
                     self.name_list.append((year, j[0], di[j[0]], j[1].strip().replace('\u200b', '').replace('\u3000', ' ')))
         
@@ -25,4 +26,3 @@ class ReadNameList:
 
 if __name__ == '__main__':
     t = ReadNameList()
-    #print(t.name_list)
