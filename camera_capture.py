@@ -16,6 +16,8 @@ class Application(tk.Frame):
         self.cap = cv2.VideoCapture(0)
         self.qcd = cv2.QRCodeDetector()
         
+        self.counter = 0 # 画面出力の削除の制御用
+        
         atexit.register(self.exit)
         self.write_tk()
         self.camera()
@@ -50,6 +52,8 @@ class Application(tk.Frame):
         c, self.target = self.find_json()
         if c:
             self.target = str(askinteger('速歩遠足', 'ここは何関門ですか？', initialvalue=1))
+            if self.target == 'None':
+                exit()
             with open(self.target + '.json', 'w') as f:
                 json.dump({'barrier':self.target}, f)
         
@@ -65,9 +69,16 @@ class Application(tk.Frame):
         r, *_,= self.qcd.detectAndDecode(frame)
         if r:
             self.write_time(r)
+            self.counter += 1
+            self.after(1000, self.reduce_counter)
         frame = cv2.resize(frame, (1000, 500))
-        cv2.imshow('test', frame)
+        cv2.imshow('reader', frame)
         self.after(50, self.camera)
+    
+    def reduce_counter(self):
+        self.counter -= 1
+        if self.counter == 0:
+            self.label['text'] = ''
     
     def write_time(self, ip):
         if ip == None:
@@ -75,7 +86,7 @@ class Application(tk.Frame):
         t = time.time()
         if ip not in self.name_dict:
             self.label['text'] = f'{len(self.name_dict)}位'
-            self.name_dict[ip] = (t, len(self.name_dict))
+            self.name_dict[ip] = t
             self.write_json()
         
     def write_json(self):
@@ -102,10 +113,6 @@ class Application(tk.Frame):
     def write_name(self):
         ip = str(self.year_val.get()) + self.class_val.get() + str(self.number_val.get()).zfill(2)
         self.write_time(ip)
-            
-        
-        
-        
 
 if __name__ == '__main__':
     root = tk.Tk()
