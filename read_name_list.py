@@ -19,7 +19,7 @@ class ReadNameList:
                     if j[0] == None or j[1] == None:
                         continue
                     di[j[0]] += 1
-                    self.name_list.append((year, j[0], di[j[0]], j[1].strip().replace('\u200b', '').replace('\u3000', ' ')))
+                    self.name_list.append((year, j[0], di[j[0]], j[1].strip().replace('\u200b', '').replace('\u3000', ' '))) # type: ignore
         
             return self.name_list
         exit()

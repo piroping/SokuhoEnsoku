@@ -23,7 +23,7 @@ class MakeRecord:
         draw = ImageDraw.Draw(image)
         for i, (x, y) in zip(li, [(i, j) for i in range(2) for j in range(4)]):
             draw.multiline_text((137 + x * 1309, 137 + y * 954), f'函館ラ・サール学園  速歩遠足\n{i[0]}年{i[1]}組{i[2]}番', fill=0, font=font)
-            code = qrcode.make(f'{i[0]}{i[1]}{str(i[2]).zfill(2)}', error_correction = qrcode.constants.ERROR_CORRECT_H, box_size = 30)
+            code = qrcode.make(f'{i[0]}{i[1]}{str(i[2]).zfill(2)}', error_correction = qrcode.constants.ERROR_CORRECT_H, box_size = 30) # type: ignore
             image.paste(code, (137 + x * 1309 - 100, 137 + y * 954 + 150))
         
         image.save(f'records/{ind}.png')
