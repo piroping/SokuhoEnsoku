@@ -14,8 +14,7 @@ class MakeGrade:
         
         self.timezone = datetime.timezone(datetime.timedelta(hours=9))
         
-        #self.start = datetime.datetime(year, month, day, hour, minute, tzinfo=self.timezone)
-        self.start = datetime.datetime(2023, 7, 31, 17, 23, tzinfo=self.timezone)
+        self.start = datetime.datetime(year, month, day, hour, minute, tzinfo=self.timezone)
         self.start.astimezone(self.timezone)
         
         self.read_name_list()
