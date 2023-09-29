@@ -3,6 +3,7 @@ import openpyxl
 import read_name_list
 import tkinter as tk
 import datetime
+import glob
 
 class MakeGrade:
     def __init__(self, year, month, day, hour, minute):
@@ -25,24 +26,24 @@ class MakeGrade:
         self.save_excel()
 
     def read_json(self):
-        ind = 0
-        while True:
-            ind += 1
-            try:
-                with open(f'./dates/{ind}.json', 'r') as f:
-                    d = json.loads(f.read())
-                    for i in self.name_dict.keys():
-                        if i in d:
-                            c = datetime.datetime.fromtimestamp(d[i])
-                            c = c.replace(tzinfo=self.timezone)
-                            self.time_dict[i].append(c)
-                        else:
-                            self.time_dict[i].append(None)
-            except FileNotFoundError:
-                if ind == 1:
-                    print('ありませんでした')
-                else:
-                    break
+        length = 0
+        for file in glob.glob('./dates/*.json'):
+            with open(file, 'r') as f:
+                d = json.loads(f.read())
+                length = max(length, d['checkpoint'])
+        
+        for i in self.time_dict.keys():
+            self.time_dict[i] = [None for i in range(length)]
+        
+        for file in glob.glob('./dates/*.json'):
+            with open(file, 'r') as f:
+                d = json.loads(f.read())
+                for i in self.name_dict.keys():
+                    if i in d:
+                        c = datetime.datetime.fromtimestamp(d[i])
+                        c = c.replace(tzinfo=self.timezone)
+                        self.time_dict[i][d['checkpoint'] - 1] = c
+        
     
     def read_name_list(self):
         for i in read_name_list.ReadNameList().open():
@@ -58,7 +59,7 @@ class MakeGrade:
         for a, b in self.time_dict.items():
             if b[-1] is not None:
                 li.append((b[-1], b[-1] - self.start, a))
-        li.sort(reverse=True)
+        li.sort()
         
         sheet.append(('年', '組', '番号', '名前', '到着時間', 'タイム', ))
         for i, (a, b, c) in enumerate(li):
@@ -103,7 +104,6 @@ class AskDateAndTime(tk.Frame):
         super().__init__(root)
         self.root = root
         self.write_screen()
-        # 2023/7/27/20/30
     
     def write_screen(self):
         now = datetime.datetime.now()

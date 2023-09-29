@@ -10,6 +10,7 @@ class Application(tk.Frame):
     def __init__(self, root):
         super().__init__(root)
         self.root = root
+        self.name_dict = {}
         
         self.load_json()
         
@@ -49,16 +50,12 @@ class Application(tk.Frame):
             self.root.grid_columnconfigure(i, weight=1)
     
     def load_json(self):
-        c, self.target = self.find_json()
-        if c:
-            self.target = str(askinteger('速歩遠足', 'ここは何関門ですか？', initialvalue=1))
-            if self.target == 'None':
-                exit()
-            with open(self.target + '.json', 'w') as f:
-                json.dump({'barrier':self.target}, f)
-        
-        with open(self.target + '.json', 'r') as f:
-            self.name_dict = json.load(f)
+        self.file_name = self.find_json()
+        self.target = askinteger('速歩遠足', 'ここは何関門ですか？', initialvalue=1)
+        if self.target is None:
+            exit()
+        self.name_dict['checkpoint'] = self.target
+        self.write_json()
     
     def exit(self):
         self.cap.release()
@@ -90,18 +87,16 @@ class Application(tk.Frame):
             self.write_json()
         
     def write_json(self):
-        with open(self.target + '.json', 'w') as f:
+        with open(self.file_name + '.json', 'w') as f:
             json.dump(self.name_dict, f)
     
     def find_json(self):
-        c = True
-        target = '0'
-        for i in os.listdir():
-            if i[-4:] == 'json':
-                c = False
-                target = i[0]
-                break
-        return c, target
+        file_name = 0
+        while True:
+            if os.path.isfile(f'{file_name}.json'):
+                file_name += 1
+            else:
+                return str(file_name)
 
     def check_name(self):
         ip = str(self.year_val.get()) + self.class_val.get() + str(self.number_val.get()).zfill(2)
