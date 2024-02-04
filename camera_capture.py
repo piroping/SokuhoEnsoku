@@ -36,6 +36,7 @@ class Application(tk.Frame):
         self.number_spinbox = tk.Spinbox(textvariable=self.number_val, from_=1, to=50, increment=1, wrap=True, width=2, font=self.spinbox_font)
         
         self.check_button = tk.Button(text='確認', font=self.spinbox_font, command=self.check_name)
+        self.check_point = tk.Label(text=f'第{self.target}関門')
         self.passage_button = tk.Button(text='通過', font=self.spinbox_font, command=self.write_name)
         
         self.label.grid(column=0, row=0, columnspan=3)
@@ -44,6 +45,7 @@ class Application(tk.Frame):
         self.number_spinbox.grid(column=2, row=1, sticky=tk.EW)
         
         self.check_button.grid(column=0, row=2, sticky=tk.EW)
+        self.check_point.grid(column=1, row=2, sticky=tk.EW)
         self.passage_button.grid(column=2, row=2, sticky=tk.EW)
         
         for i in range(3):
