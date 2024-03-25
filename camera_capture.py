@@ -36,7 +36,7 @@ class Application(tk.Frame):
         self.number_spinbox = tk.Spinbox(textvariable=self.number_val, from_=1, to=50, increment=1, wrap=True, width=2, font=self.spinbox_font)
         
         self.check_button = tk.Button(text='確認', font=self.spinbox_font, command=self.check_name)
-        self.check_point = tk.Label(text=f'第{self.target}関門')
+        self.check_point = tk.Label(text=f'第{self.target}関門 0人通過')  # 何人通過したかも伝える
         self.passage_button = tk.Button(text='通過', font=self.spinbox_font, command=self.write_name)
         
         self.label.grid(column=0, row=0, columnspan=3)
@@ -85,6 +85,7 @@ class Application(tk.Frame):
         t = time.time()
         if ip not in self.name_dict:
             self.label['text'] = f'{len(self.name_dict)}位'
+            self.check_point['text'] = f'第{self.target}関門 {len(self.name_dict)}人通過'
             self.name_dict[ip] = t
             self.write_json()
         
