@@ -1,0 +1,39 @@
+@startuml all_system
+title コンポーネント図
+[make_grade.py] as grade
+[make_record_card.py] as card
+[camera_capture.py] as camera
+[read_name_list.py] as name
+actor 走者
+actor 先生
+
+先生 -> (名簿)
+(名簿) -> name
+name ..> card
+name ..> grade
+card -> (カード)
+(カード) -> 走者
+走者 -> (カード読み取り)
+(カード読み取り) -> camera
+camera -> (jsonファイル)
+(jsonファイル) -> grade
+grade -> (成績)
+(成績) -> (先生)
+
+note bottom of grade
+    関門の情報から、最終的な成績表を製造します。
+end note
+
+note bottom of camera
+    関門に置き、誰がいつ通過するかを確認します。
+end note
+
+note bottom of card
+    走者の情報から、QRコード付きのカードを製造します。
+end note
+
+note right of name
+    名簿から学年、番号、名前を抽出します。
+end note
+
+@enduml
